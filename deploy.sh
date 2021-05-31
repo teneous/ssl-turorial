@@ -15,6 +15,8 @@ JAVA_OUT=${APP_HOME}/logs/start.log  #应用的启动日志
 # 创建出相关目录
 mkdir -p ${APP_HOME}
 mkdir -p ${APP_HOME}/logs
+mkdir -p ${APP_HOME}/target
+
 usage() {
     echo "Usage: $PROG_NAME {start|stop|restart}"
     exit 2
@@ -47,7 +49,7 @@ health_check() {
     echo "check ${HEALTH_CHECK_URL} success"
 }
 start_application() {
-    echo "starting java process"
+    echo "starting java process path:${JAR_NAME}"
     nohup java -jar ${JAR_NAME} > ${JAVA_OUT} 2>&1 &
     echo "started java process"
 }
