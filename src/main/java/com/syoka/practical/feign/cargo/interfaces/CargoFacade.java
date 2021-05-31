@@ -31,4 +31,9 @@ public class CargoFacade {
         return ResponseEntity.ok("hello");
     }
 
+    @GetMapping("/")
+    public ResponseEntity<Void> heartbeat() {
+        return ResponseEntity.ok().build();
+    }
+
 }
