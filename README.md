@@ -1,37 +1,88 @@
-### 3 分钟了解如何进入开发
+# SSL 尝试
 
-欢迎使用云效 Codeup，通过阅读以下内容，你可以快速熟悉 Codeup ，并立即开始今天的工作。
+[![License](https://img.shields.io/badge/license-Apache%202-4EB1BA.svg)](https://www.apache.org/licenses/LICENSE-2.0.html)
 
-### 提交**文件**
+-------
 
-首先，你需要了解在 Codeup 中如何提交代码文件，跟着文档「[__提交第一行代码__](https://thoughts.aliyun.com/sharespace/5e8c37eb546fd9001aee8242/docs/5e8c37e7546fd9001aee81fd)」一起操作试试看吧。
+本文基于Java Springboot 项目完成一个基础的ssl通信demo
 
-### 开启扫描
+<sub>基于容器tomcat</sub>
 
-开发过程中，为了更好的管理你的代码资产，Codeup 内置了「[__代码规约扫描__](https://thoughts.aliyun.com/sharespace/5e8c37eb546fd9001aee8242/docs/5e8c37e8546fd9001aee821c)」和「[__敏感信息检测__](https://thoughts.aliyun.com/sharespace/5e8c37eb546fd9001aee8242/docs/5e8c37e8546fd9001aee821b)」服务，你可以在代码库设置-集成与服务中一键开启，开启后提交或合并请求的变更将自动触发扫描，并及时提供结果反馈。
+- https单向认证（cargo作为服务器）
+- https双向认证（cargo作为客户端，itinerary作为服务器）
 
-![](https://img.alicdn.com/tfs/TB1nRDatoz1gK0jSZLeXXb9kVXa-1122-380.png "")
+# Quick Started
 
-![](https://img.alicdn.com/tfs/TB1PrPatXY7gK0jSZKzXXaikpXa-1122-709.png "")
+## 单向认证调试（Cargo）
 
-### 代码评审
+### 配置相关
 
-功能开发完毕后，通常你需要发起「[__代码合并和评审__](https://thoughts.aliyun.com/sharespace/5e8c37eb546fd9001aee8242/docs/5e8c37e8546fd9001aee8216)」，Codeup 支持多人协作的代码评审服务，你可以通过「[__保护分支__](https://thoughts.aliyun.com/sharespace/5e8c37eb546fd9001aee8242/docs/5e8c37e9546fd9001aee8221)」策略及「[__合并请求设置__](https://thoughts.aliyun.com/sharespace/5e8c37eb546fd9001aee8242/docs/5e8c37e9546fd9001aee8224)」对合并过程进行流程化管控，同时提供 WebIDE 在线代码评审及冲突解决能力，让你的评审过程更加流畅。
+- application.properties
 
-![](https://img.alicdn.com/tfs/TB1XHrctkP2gK0jSZPxXXacQpXa-1432-887.png "")
+```properties
+server.port=9002 #https端口
+server.ssl.enabled=true
+server.ssl.key-store=classpath:cargo.jks
+server.ssl.key-store-password=syoka123
+server.ssl.key-store-type=JKS
+server.ssl.key-alias=cargo
+```
 
-![](https://img.alicdn.com/tfs/TB1V3fctoY1gK0jSZFMXXaWcVXa-1432-600.png "")
+密钥管理机制，JKS生成命令[参考文档](http://CERT.md)
 
-### 编写文档
+### 调测
 
-项目推进过程中，你的经验和感悟可以直接记录到 Codeup 代码库的「[__文档__](https://thoughts.aliyun.com/sharespace/5e8c37eb546fd9001aee8242/docs/5e8c37e8546fd9001aee8213)」内，让智慧可视化。
+#### 浏览器调测
 
-![](https://img.alicdn.com/tfs/TB1BN2ateT2gK0jSZFvXXXnFXXa-1432-700.png "")
+1. 访问https://localhost:9002/heartbeat
 
-### 成员协作
+![img.png](https://i.ibb.co/hmL2sCz/img-1.png)
 
-是时候邀请成员一起编写卓越的代码工程了，请点击右上角「成员」邀请你的小伙伴开始协作吧！
+说明Chrome从证书链上不认可当前自签证书。输入`thisisunsafe`来屏蔽这个，或者换个浏览器比如safari。
 
-### 更多
+## 双向认证调试（Cargo，Itinerary）
 
-Git 使用教学、高级功能指引等更多说明，参见[__Codeup帮助文档__](https://thoughts.aliyun.com/sharespace/5e8c37eb546fd9001aee8242/docs/5e8c37e6546fd9001aee81fa)。
+双向认证即为服务器也需要认证客户端身份，可参考文档CERT.md中关于双向认证的测试
+
+#### POSTMAN调测
+
+![img.png](photo/postman.png)
+
+从jks中导出p12
+
+```properties
+keytool -importkeystore -srckeystore cargo.jks -srcstoretype JKS -deststoretype PKCS12 -destkeystore cargo.p12
+```
+
+导出.pem证书 .pem编码的秘钥
+
+```properties
+openssl pkcs12 -in cargo.p12 -nodes -out cargo.pem
+```
+
+从cargo.pem中取出cert和privatekey,用两个文件保存，比如cert.key，pri.key。 分别对应postman中的crt和key。
+
+## FAQ
+
+### 请求GET以外的接口，响应一直返回405 Method Not Allow
+
+原因来自于Tomcat的Connector配置代码中，追加了如下代码，导致所有http请求被重新跳转到https上，跳转时的请求类型为GET.
+
+```properties
+  connector.setRedirectPort(9002);
+```
+
+### 如何取出pem中的pri和crt
+
+最简单的是使用vim打开pem文件，拷贝---begin---,----end----之间的内容到一个新的文件中。
+
+```properties
+  connector.setRedirectPort(9002);
+```
+
+## Contributing
+
+please contact me.
+
+- kevinto@foxmail.com
+- syoka9471@gmail.com

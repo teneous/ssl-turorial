@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <groupId>com.syoka.practical</groupId>
+        <artifactId>ssl-turorial-parent</artifactId>
+        <version>0.0.1-SNAPSHOT</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>itinerary-parent</artifactId>
+    <packaging>pom</packaging>
+
+    <modules>
+        <module>itinerary-api</module>
+        <module>itinerary-server</module>
+    </modules>
+
+    <properties>
+        <maven.compiler.source>8</maven.compiler.source>
+        <maven.compiler.target>8</maven.compiler.target>
+        <itinerary.bom>0.0.1-SNAPSHOT</itinerary.bom>
+        <feign.version>11.2</feign.version>
+
+    </properties>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>com.syoka.practical</groupId>
+                <artifactId>itinerary-server</artifactId>
+                <version>${itinerary.bom}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.syoka.practical</groupId>
+                <artifactId>itinerary-api</artifactId>
+                <version>${itinerary.bom}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>io.github.openfeign</groupId>
+                <artifactId>feign-core</artifactId>
+                <version>${feign.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>io.github.openfeign</groupId>
+                <artifactId>${feign.version}</artifactId>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+</project>

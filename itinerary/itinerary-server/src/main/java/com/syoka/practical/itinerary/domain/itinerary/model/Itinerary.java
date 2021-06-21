@@ -1,0 +1,43 @@
+/*
+ *  Copyright (C), 2008-2021, Syoka All Rights Reserved.
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *  http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+package com.syoka.practical.itinerary.domain.itinerary.model;
+
+import com.syoka.practical.itinerary.domain.shared.ValueObject;
+
+import lombok.Data;
+
+/**
+ * @author syoka
+ * @version : Itinerary.java 2021年05月12日 10时27分
+ */
+@Data
+public class Itinerary implements ValueObject<Itinerary> {
+
+    /**
+     * 运输公司名称
+     */
+    private String supplier;
+
+    /**
+     * 消耗时间 分钟级
+     */
+    private int costTime;
+
+    @Override
+    public boolean sameAs(Itinerary itinerary) {
+        return itinerary != null && itinerary.equals(this);
+    }
+}
